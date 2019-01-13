@@ -18,6 +18,7 @@ def generate(username, password, player_id, start_date=None):
             try:
                 for a in activity.get_data(activity_id):
                     if not start_date or (start_date and start_date <= a['time']):
+                        a['id'] = activity_id
                         yield a['time'], pd.Series(a)
                     elif start_date:
                         done = True
@@ -35,6 +36,7 @@ def generate(username, password, player_id, start_date=None):
 
 def ZwiftDataFrame(username, password, player_id, start_date=None):
     columns = [
+        'id',
         'lat',
         'lng',
         'altitude',
