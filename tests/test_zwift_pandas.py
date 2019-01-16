@@ -45,8 +45,10 @@ class TestZwift_pandas(unittest.TestCase):
 
     def test_generate_with_future_date(self):
         start_date = datetime(2099, 1, 1)
+        generator = zwift_pandas.ZwiftGenerator(self.username, self.password, self.player_id, start_date)
         count = 0
-        for time, series in zwift_pandas.generate(self.username, self.password, self.player_id, start_date):
+
+        for time, series in generator.generate():
             count = 1
             break
 
@@ -54,11 +56,16 @@ class TestZwift_pandas(unittest.TestCase):
 
     def test_generate_dataframe(self):
         df = zwift_pandas.ZwiftDataFrame(self.username, self.password, self.player_id, self.start_date)
+        metadata = df.zwift.metadata
 
         self.assertNotEqual(df.shape, (0, 0), 'Dataframe not generated')
 
-        num_days = df.resample('D').mean().shape[0]
+        num_days = df.zwift.resample_agg('D').shape[0]
 
-        self.assertNotEqual(num_days, self.num_days, 'Expected only %d days generated, %d were generated' % (self.num_days, num_days))
+        activities = df.zwift.resample_agg('ZA')
+        num_activities = activities.shape[0]
 
+        check_id = [*metadata][0]
+
+        self.assertIsNotNone(df.zwift.metadata, 'Expected metadata.  Received None')
         
